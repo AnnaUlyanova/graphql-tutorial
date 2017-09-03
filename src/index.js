@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom'
 import { BrowserRouter } from 'react-router-dom'
 import App from './components/App'
 import registerServiceWorker from './registerServiceWorker'
+import { GC_AUTH_TOKEN } from './constants'
 import './styles/index.css'
 // 1
 import { ApolloProvider, createNetworkInterface, ApolloClient } from 'react-apollo'
@@ -11,6 +12,17 @@ import { ApolloProvider, createNetworkInterface, ApolloClient } from 'react-apol
 const networkInterface = createNetworkInterface({
   uri: 'https://api.graph.cool/simple/v1/cj72zoqr70h0a0179wf62z2nd'
 })
+
+networkInterface.use([{
+  applyMiddleware(req, next) {
+    if (!req.options.headers) {
+      req.options.headers = {}
+    }
+    const token = localStorage.getItem(GC_AUTH_TOKEN)
+    req.options.headers.authorization = token ? `Bearer ${token}` : null
+    next()
+  }
+}])
 
 // 3
 const client = new ApolloClient({
